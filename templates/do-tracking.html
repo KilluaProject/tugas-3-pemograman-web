@@ -1,0 +1,96 @@
+<template id="tpl-tracking">
+    <div class="space-y-6">
+        <div v-show="trackingLog"
+            class="bg-blue-50 border-l-4 border-utblue p-4 rounded-r-lg shadow-xs flex items-center gap-3">
+            <div class="text-sm text-slate-700">
+                <strong class="text-utblue">Info Tracking:</strong> <span v-text="trackingLog"></span>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-xs border border-slate-200 p-6">
+            <h3 class="text-base font-bold text-utblue mb-3">Pencarian Delivery Order (DO)</h3>
+            <div class="mb-5">
+                <label class="block text-xs font-semibold text-slate-600 mb-1.5">
+                    Cari Nomor DO atau NIM (Tekan <kbd
+                        class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-xs">Enter</kbd> untuk
+                    Cari, <kbd class="px-1.5 py-0.5 bg-slate-100 border border-slate-300 rounded text-xs">Esc</kbd>
+                    untuk Reset):
+                </label>
+                <div class="flex flex-wrap gap-2">
+                    <input type="text" v-model="inputKeyword" @keyup.enter="submitSearch" @keyup.esc="clearSearch"
+                        placeholder="Ketik DO2025-001 atau 123456789 lalu tekan Enter..."
+                        class="flex-1 min-w-[240px] px-3.5 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none">
+                    <button @click="submitSearch"
+                        class="px-4 py-2 bg-utblue hover:bg-blue-900 text-white text-sm font-semibold rounded-lg transition">
+                        Cari (Enter)
+                    </button>
+                    <button @click="clearSearch"
+                        class="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-sm font-semibold rounded-lg transition">
+                        Reset (Esc)
+                    </button>
+                </div>
+            </div>
+
+            <div class="overflow-x-auto rounded-lg border border-slate-200">
+                <table class="w-full text-left">
+                    <thead>
+                        <tr class="bg-utblue text-white text-xs uppercase tracking-wider">
+                            <th class="py-3.5 px-4 whitespace-nowrap">Nomor DO</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap">NIM & Nama</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap">Ekspedisi</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap">Tanggal Kirim</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap">Paket</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap">Total Harga</th>
+                            <th class="py-3.5 px-4 whitespace-nowrap">Status</th>
+                            <th class="py-3.5 px-4 min-w-[300px]">Riwayat & Tambah Progress Perjalanan</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y text-sm">
+                        <tr v-if="filteredTracking.length === 0">
+                            <td colspan="8" class="py-8 text-center text-slate-400 italic">Data Delivery Order tidak
+                                ditemukan.</td>
+                        </tr>
+                        <tr v-for="item in filteredTracking" :key="item.noDO"
+                            class="hover:bg-slate-50 transition align-top">
+                            <td class="py-3.5 px-4 font-bold text-utblue whitespace-nowrap">{{ item.noDO }}</td>
+                            <td class="py-3.5 px-4 whitespace-nowrap">
+                                <span class="text-xs font-mono text-slate-500">{{ item.nim }}</span><br>
+                                <strong class="text-slate-800">{{ item.nama }}</strong>
+                            </td>
+                            <td class="py-3.5 px-4 whitespace-nowrap">{{ item.ekspedisi }}</td>
+                            <td class="py-3.5 px-4 whitespace-nowrap">{{ item.tanggalKirim | formatTanggalIndo }}</td>
+                            <td class="py-3.5 px-4 whitespace-nowrap">
+                                <span
+                                    class="inline-block px-2.5 py-1 bg-blue-50 text-utblue border border-blue-200 rounded text-xs font-semibold whitespace-nowrap">{{
+                                    item.paket }}</span>
+                            </td>
+                            <td class="py-3.5 px-4 font-semibold whitespace-nowrap">{{ item.total | formatRupiah }}</td>
+                            <td class="py-3.5 px-4 whitespace-nowrap">
+                                <span
+                                    class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 whitespace-nowrap">
+                                    {{ item.status }}
+                                </span>
+                            </td>
+                            <td class="py-3.5 px-4 min-w-[300px]">
+                                <ul class="space-y-1.5 mb-3 text-xs text-slate-600 border-l-2 border-utblue pl-3">
+                                    <li v-for="(log, idx) in item.perjalanan" :key="idx">
+                                        <span class="font-bold text-slate-800">{{ log.waktu }}</span>: {{ log.keterangan }}
+                                    </li>
+                                </ul>
+                                <div class="flex gap-1.5">
+                                    <input type="text" v-model="progressInputs[item.noDO]"
+                                        @keyup.enter="tambahProgress(item)" placeholder="Input lokasi/progress baru..."
+                                        class="flex-1 px-2.5 py-1.5 text-xs border border-slate-300 rounded-md focus:outline-none">
+                                    <button @click="tambahProgress(item)"
+                                        class="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold rounded-md transition whitespace-nowrap">
+                                        + Progress
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</template>

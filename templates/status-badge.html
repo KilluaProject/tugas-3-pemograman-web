@@ -1,0 +1,27 @@
+<template id="tpl-badge">
+    <div class="relative inline-block cursor-pointer" @mouseenter="isHover = true" @mouseleave="isHover = false">
+        <!-- Conditional Badge Status -->
+        <span v-if="qty === 0"
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200/80 whitespace-nowrap">
+            <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+            Kosong
+        </span>
+        <span v-else-if="qty < safety"
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-700 border border-amber-200/80 whitespace-nowrap">
+            <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+            Menipis
+        </span>
+        <span v-else
+            class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/80 whitespace-nowrap">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+            Aman
+        </span>
+
+        <!-- Tooltip Preview CatatanHTML saat Mouse Hover -->
+        <div v-show="isHover"
+            class="tooltip-arrow absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 w-56 bg-slate-900 text-white text-xs rounded-lg py-2.5 px-3 shadow-xl z-50 text-left border border-slate-700">
+            <div class="font-semibold text-amber-300 mb-1 border-b border-slate-700 pb-1 text-[11px] uppercase tracking-wider">Catatan Bahan Ajar</div>
+            <div v-html="catatanHtml || '<span class=\'text-slate-400 italic\'>Tidak ada catatan</span>'" class="text-slate-200 leading-relaxed text-xs"></div>
+        </div>
+    </div>
+</template>

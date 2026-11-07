@@ -1,0 +1,109 @@
+<template id="tpl-order">
+    <div class="space-y-6">
+        <div v-show="orderLog"
+            class="bg-blue-50 border-l-4 border-utblue p-4 rounded-r-lg shadow-xs flex items-center gap-3">
+            <div class="text-sm text-slate-700">
+                <strong class="text-utblue">Info Pemesanan:</strong> <span v-text="orderLog"></span>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-xl shadow-xs border border-slate-200 p-6">
+            <h3 class="text-base font-bold text-utblue mb-4">Formulir Input Delivery Order (DO) Baru</h3>
+            <form @submit.prevent="submitOrder">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nomor DO (Otomatis):</label>
+                        <input type="text" :value="generatedNomorDO" disabled
+                            class="w-full px-3 py-2 text-sm bg-slate-100 border border-slate-300 rounded-lg font-bold text-utblue cursor-not-allowed">
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">NIM Mahasiswa *</label>
+                        <input type="text" v-model.trim="formDO.nim" placeholder="Contoh: 123456789"
+                            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none">
+                        <p v-if="errors.nim" class="text-red-600 text-xs mt-1">{{ errors.nim }}</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Nama Mahasiswa *</label>
+                        <input type="text" v-model.trim="formDO.nama" placeholder="Masukkan nama lengkap"
+                            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none">
+                        <p v-if="errors.nama" class="text-red-600 text-xs mt-1">{{ errors.nama }}</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">UT-Daerah (UPBJJ) *</label>
+                        <select v-model="formDO.upbjj"
+                            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none">
+                            <option value="">-- Pilih UT-Daerah --</option>
+                            <option v-for="u in upbjjList" :key="u" :value="u">{{ u }}</option>
+                        </select>
+                        <p v-if="errors.upbjj" class="text-red-600 text-xs mt-1">{{ errors.upbjj }}</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Ekspedisi (JNE) *</label>
+                        <select v-model="formDO.ekspedisi"
+                            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none">
+                            <option value="">-- Pilih Layanan JNE --</option>
+                            <option v-for="eks in ekspedisi" :key="eks.kode" :value="'JNE ' + eks.nama">
+                                JNE {{ eks.nama }}
+                            </option>
+                        </select>
+                        <p v-if="errors.ekspedisi" class="text-red-600 text-xs mt-1">{{ errors.ekspedisi }}</p>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">
+                            Tanggal Kirim (<span class="text-utblue font-bold">{{ formDO.tanggalKirim |
+                                formatTanggalIndo }}</span>) *
+                        </label>
+                        <div class="flex gap-2">
+                            <input type="date" v-model="formDO.tanggalKirim"
+                                class="flex-1 px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none">
+                            <button type="button" @click="setTanggalHariIni"
+                                class="px-3 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 text-xs font-semibold rounded-lg transition">
+                                Hari Ini
+                            </button>
+                        </div>
+                        <p v-if="errors.tanggalKirim" class="text-red-600 text-xs mt-1">{{ errors.tanggalKirim }}</p>
+                    </div>
+
+                    <div class="sm:col-span-2">
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Paket Bahan Ajar *</label>
+                        <select v-model="formDO.kodePaket"
+                            class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none">
+                            <option value="">-- Pilih Paket Bahan Ajar --</option>
+                            <option v-for="p in paket" :key="p.kode" :value="p.kode">
+                                {{ p.kode }} - {{ p.nama }}
+                            </option>
+                        </select>
+                        <p v-if="errors.kodePaket" class="text-red-600 text-xs mt-1">{{ errors.kodePaket }}</p>
+
+                        <!-- Detail isi paket muncul otomatis di bawah elemen <select> -->
+                        <div v-if="selectedPaketObj"
+                            class="mt-3 p-3.5 bg-blue-50 border border-blue-200 rounded-lg text-xs text-slate-700">
+                            <strong class="text-utblue block mb-1">Detail Isi {{ selectedPaketObj.nama }}:</strong>
+                            <ul class="list-disc list-inside space-y-1">
+                                <li v-for="(kodeMk, i) in selectedPaketObj.isi" :key="i">
+                                    <span class="font-semibold">{{ kodeMk }}</span> - {{ getJudulMk(kodeMk) }}
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-600 mb-1">Total Harga Paket:</label>
+                        <input type="text" :value="totalHargaPaket | formatRupiah" disabled
+                            class="w-full px-3 py-2 text-sm bg-amber-50 border border-amber-300 rounded-lg font-bold text-utblue cursor-not-allowed">
+                    </div>
+                </div>
+
+                <button type="submit"
+                    class="px-6 py-2.5 bg-utblue hover:bg-blue-900 text-white text-sm font-semibold rounded-lg shadow-sm transition">
+                    Simpan Delivery Order Baru
+                </button>
+            </form>
+        </div>
+    </div>
+</template>

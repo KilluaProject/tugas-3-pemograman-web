@@ -1,0 +1,13 @@
+Vue.component('status-badge', {
+    template: '#tpl-badge',
+    props: {
+        qty: { type: Number, required: true },
+        safety: { type: Number, required: true },
+        catatanHtml: { type: String, default: '' }
+    },
+    data: function () {
+        return {
+            isHover: false
+        };
+    }
+});

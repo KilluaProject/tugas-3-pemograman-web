@@ -1,0 +1,28 @@
+@import "tailwindcss";
+
+.bg-utblue {
+    background-color: #003366;
+}
+
+.text-utblue {
+    color: #003366;
+}
+
+.border-utblue {
+    border-color: #003366;
+}
+
+.bg-utgold {
+    background-color: #ffcc00;
+}
+
+.tooltip-arrow::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -6px;
+    border-width: 6px;
+    border-style: solid;
+    border-color: #0f172a transparent transparent transparent;
+}

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="id">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SITTA UT - Tugas Praktik 3 Vue.js</title>
+    <!-- Memanggil File Hasil Build Tailwind CSS Lokal -->
+    <link rel="stylesheet" href="./assets/css/style.css">
+</head>
+
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col">
+    <div id="app" class="flex-1 flex flex-col">
+        <login-page v-if="!isLoggedIn" @login-success="handleLogin"></login-page>
+
+        <!-- Aplikasi utama hanya dirender setelah login -->
+        <template v-else>
+            <!-- Header & Navigasi Tab -->
+            <header class="bg-white/95 backdrop-blur border-b border-slate-200 sticky top-0 z-40">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3">
+                    <div class="flex items-center gap-3">
+                        <img src="./assets/img/logo_ut.png" alt="Logo Universitas Terbuka" class="h-11 w-auto">
+                        <div class="hidden sm:block">
+                            <h1 class="text-base sm:text-lg font-bold tracking-tight text-utblue">SITTA UNIVERSITAS
+                                TERBUKA</h1>
+                            <p class="text-xs text-slate-500">Sistem Informasi Tiras & Transaksi Bahan Ajar</p>
+                        </div>
+                    </div>
+
+                    <nav
+                        class="order-3 sm:order-2 flex w-full sm:w-auto gap-1 bg-slate-100 p-1 rounded-lg border border-slate-200/70 overflow-x-auto">
+                        <button @click="tab = 'stok'"
+                            :class="tab === 'stok' ? 'bg-utblue text-white font-bold shadow-xs' : 'text-slate-600 hover:bg-white hover:text-utblue'"
+                            class="px-3.5 py-1.5 rounded-md text-xs sm:text-sm font-medium whitespace-nowrap transition-colors">
+                            Stok Bahan Ajar
+                        </button>
+                        <button @click="tab = 'tracking'"
+                            :class="tab === 'tracking' ? 'bg-utblue text-white font-bold shadow-xs' : 'text-slate-600 hover:bg-white hover:text-utblue'"
+                            class="px-3.5 py-1.5 rounded-md text-xs sm:text-sm font-medium whitespace-nowrap transition-colors">
+                            Tracking DO
+                        </button>
+                        <button @click="tab = 'order'"
+                            :class="tab === 'order' ? 'bg-utblue text-white font-bold shadow-xs' : 'text-slate-600 hover:bg-white hover:text-utblue'"
+                            class="px-3.5 py-1.5 rounded-md text-xs sm:text-sm font-medium whitespace-nowrap transition-colors">
+                            Pemesanan (DO Baru)
+                        </button>
+                    </nav>
+
+                    <div class="order-2 sm:order-3 flex items-center gap-2.5">
+                        <div class="hidden md:block text-right leading-tight">
+                            <p class="text-xs font-semibold text-slate-700">{{ currentUser.nama }}</p>
+                            <p class="text-[11px] text-slate-400">{{ currentUser.role }}</p>
+                        </div>
+                        <button @click="handleLogout"
+                            class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-600 hover:text-rose-600 hover:border-rose-200 hover:bg-rose-50 transition">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1">
+                                </path>
+                            </svg>
+                            Keluar
+                        </button>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Konten Utama Berdasarkan State Tab -->
+            <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex-1">
+                <!-- Tab 1: Stok Bahan Ajar -->
+                <section v-show="tab === 'stok'">
+                    <ba-stock-table :items="state.stok" :upbjj-list="state.upbjjList"
+                        :kategori-list="state.kategoriList" @request-delete="handleDeleteStok"
+                        @notify="handleNotify">
+                    </ba-stock-table>
+                </section>
+
+                <!-- Tab 2: Tracking DO -->
+                <section v-show="tab === 'tracking'">
+                    <do-tracking :data="state.tracking" @notify="handleNotify"></do-tracking>
+                </section>
+
+                <!-- Tab 3: Order Form (Input DO Baru) -->
+                <section v-show="tab === 'order'">
+                    <order-form :paket="state.paket" :ekspedisi="state.pengirimanList" :upbjj-list="state.upbjjList"
+                        :stok-list="state.stok" :tracking-count="state.tracking.length" @created="handleNewDO">
+                    </order-form>
+                </section>
+            </main>
+
+            <!-- Footer -->
+            <footer class="bg-white border-t border-slate-200 py-4 text-center text-xs text-slate-500">
+                Tugas Praktik 3 - STSI4209 / MSIM4309 Pemrograman Berbasis Web &bull; Universitas Terbuka
+            </footer>
+
+            <!-- Komponen Modal Konfirmasi Global -->
+            <app-modal ref="modal"></app-modal>
+        </template>
+    </div>
+
+    <!-- Wadah penampung file /templates/*.html yang dimuat otomatis oleh api.js -->
+    <div id="template-container" class="hidden"></div>
+
+    <!-- Scripts (Urutan Penting Sesuai Soal - Menggunakan CDN Vue 2 Resmi) -->
+    <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    <script src="./js/services/api.js"></script>
+    <script src="./js/services/auth.js"></script>
+    <script src="./js/components/stock-table.js"></script>
+    <script src="./js/components/do-tracking.js"></script>
+    <script src="./js/components/order-form.js"></script>
+    <script src="./js/components/status-badge.js"></script>
+    <script src="./js/components/app-modal.js"></script>
+    <script src="./js/components/login-page.js"></script>
+    <script src="./js/app.js"></script>
+</body>
+
+</html>

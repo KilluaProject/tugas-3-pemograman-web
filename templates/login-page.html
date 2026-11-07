@@ -1,0 +1,50 @@
+<template id="tpl-login">
+    <div class="flex-1 flex items-center justify-center px-4 py-10 sm:py-14">
+        <div class="w-full max-w-sm">
+            <div class="flex flex-col items-center text-center mb-6">
+                <img src="./assets/img/logo_ut.png" alt="Logo Universitas Terbuka" class="h-20 w-auto mb-4">
+                <h1 class="text-lg font-bold tracking-tight text-utblue">SITTA UNIVERSITAS TERBUKA</h1>
+                <p class="text-xs text-slate-500 mt-1">Masuk untuk mengelola stok, tracking DO, dan pemesanan.</p>
+            </div>
+
+            <form @submit.prevent="submitLogin"
+                class="bg-white border border-slate-200/90 rounded-xl shadow-xs p-6 space-y-4">
+                <div>
+                    <label for="login-username" class="block text-xs font-semibold text-slate-600 mb-1">Username</label>
+                    <input id="login-username" type="text" v-model.trim="form.username" autocomplete="username"
+                        placeholder="admin"
+                        class="w-full px-3 py-2 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-utblue focus:border-utblue">
+                </div>
+
+                <div>
+                    <label for="login-password" class="block text-xs font-semibold text-slate-600 mb-1">Password</label>
+                    <div class="relative">
+                        <input id="login-password" :type="showPassword ? 'text' : 'password'" v-model="form.password"
+                            autocomplete="current-password" placeholder="Masukkan password"
+                            class="w-full px-3 py-2 pr-20 text-sm border border-slate-300 rounded-lg focus:outline-none focus:ring-1 focus:ring-utblue focus:border-utblue">
+                        <button type="button" @click="togglePassword"
+                            :aria-label="showPassword ? 'Sembunyikan password' : 'Lihat password'"
+                            class="absolute right-2 top-1/2 -translate-y-1/2 px-1.5 py-0.5 text-[11px] font-semibold text-utblue hover:text-blue-900 rounded"
+                            v-text="showPassword ? 'Sembunyikan' : 'Lihat'"></button>
+                    </div>
+                </div>
+
+                <div v-if="error"
+                    class="bg-rose-50 border border-rose-200 text-rose-700 text-xs font-medium rounded-lg px-3 py-2"
+                    role="alert">
+                    {{ error }}
+                </div>
+
+                <button type="submit"
+                    class="w-full py-2.5 bg-utblue hover:bg-blue-900 text-white text-sm font-semibold rounded-lg transition">
+                    Masuk
+                </button>
+
+            </form>
+
+            <p class="text-center text-[11px] text-slate-400 mt-5">
+                Tugas Praktik 3 &bull; STSI4209 Pemrograman Berbasis Web
+            </p>
+        </div>
+    </div>
+</template>
