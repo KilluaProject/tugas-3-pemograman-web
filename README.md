@@ -4,7 +4,7 @@ Aplikasi web sederhana untuk pengelolaan stok bahan ajar, tracking Delivery Orde
 
 **Mata kuliah:** STSI4209 Pemrograman Berbasis Web
 **Nama:** Raden Agung Prakoso Wibowo
-**NIM:** [isi NIM]
+**NIM:** 052866944
 
 ## Fitur
 
